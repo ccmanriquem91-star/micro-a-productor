@@ -3,7 +3,7 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
-# Railway leerá esta variable desde el panel de Variables
+# Railway lee esta variable de tu panel de Variables
 NOTIF_SERVICE_URL = os.getenv("NOTIF_SERVICE_URL")
 
 @app.get("/")
@@ -12,19 +12,18 @@ def home():
 
 @app.get("/enviar")
 def enviar_dato(nombre: str = "Invitado"):
-    # Construimos la URL del Microservicio B
-    # El Micro B siempre espera un POST según el código anterior
     try:
+        # El Micro B sigue esperando un POST, así que el Micro A hace la conversión
         target_url = f"{NOTIF_SERVICE_URL}/procesar"
         payload = {"user": nombre}
         
-        # Micro A (GET) -> Micro B (POST)
+        # Petición interna de Micro A (GET) a Micro B (POST)
         response = requests.post(target_url, json=payload, timeout=5)
         
         return {
-            "msg": f"Hola {nombre}, Micro A recibió tu dato",
-            "micro_b_response": response.json(),
-            "target": target_url
+            "mensaje": f"¡Éxito! Micro A recibió a '{nombre}'",
+            "respuesta_del_micro_b": response.json(),
+            "meta_data": "Comunicación HTTP Exitosa"
         }
     except Exception as e:
-        return {"error": str(e), "tip": "Revisa que NOTIF_SERVICE_URL sea correcta"}
+        return {"error": str(e), "ayuda": "Verifica que NOTIF_SERVICE_URL en Railway sea correcta"}
